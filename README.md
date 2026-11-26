@@ -1,12 +1,34 @@
-# clear-voice (v1.1.3): 面向专业报告与叙事文稿的审改与质控 Agent Skill
+# clear-voice
 
-`clear-voice` 用于提升中英文专业报告（投研尽调、BP 评审、学术审稿、工程复盘）与叙事文稿的清晰度、自然度与易读性，同时严格保全原始材料的事实精度、归属边界与必要专业限定。
+**用 Codex 起草、审阅和润色中英文科研文稿。** 把论文段落、图注、实验记录或模拟结果交给它，让它写清比较了什么、观察到什么，以及这些观察支持什么结论。改稿时，它保留数值、单位、引用和不确定性。只想听意见时，也可以让它指出哪一句超出了证据范围。
 
-核心裁决优先级：**事实准确性 > 证据与归属边界 > 专业结构 > 语言自然度 > 表面去 AI 味**。
+## 安装到 Codex
 
-## 本地科研版
+**当前项目使用**　进入论文或报告的项目根目录，运行以下命令。需要 Node.js 22.20.0 或更高版本。
 
-当前安装入口为 [SKILL.md](SKILL.md)。它融合了 `evidence-led-editing` 的科研写作方法，并默认采用轻量语义复核。以下是原版 v1.1.3 的功能和历史测试说明。已知格式误判、原地写入和日志限制见 [本地使用说明](references/verification-and-roadmap.md)。科研稿使用只读检查。
+```sh
+npx skills add Ychris12138/clear-voice --skill clear-voice -a codex -y
+```
+
+**个人跨项目使用**　在 macOS 或 Linux 上，有 Git 就可以把仓库直接装到 Codex 的个人技能目录。
+
+```sh
+git clone https://github.com/Ychris12138/clear-voice.git ~/.agents/skills/clear-voice
+```
+
+按使用范围选一种即可。项目安装后，在该项目里打开 Codex CLI，输入 `/skills`，应能看到 `clear-voice`。个人安装后可以在任意项目里查看。若列表尚未刷新，重启 Codex 再试。[Codex 技能目录与调用方式](https://learn.chatgpt.com/docs/build-skills) · [Skills CLI 安装说明](https://github.com/vercel-labs/skills#install-a-skill)
+
+## 第一次使用
+
+把下面这段话粘贴到 Codex 对话框里即可试用。
+
+> $clear-voice 请把这段话改成论文结果段的一句话。三次独立实验中，对照组和处理组的平均响应时间分别为 120 ms 和 95 ms。初稿写的是“该处理显著加快了响应”，但我们还没有做显著性检验。
+
+一种合适的改写是「在三次独立实验中，处理组的平均响应时间为 95 ms，对照组为 120 ms。」读者可以从两个均值看出差异，句子也没有预设统计检验的结果。
+
+处理自己的稿件时，可以附上原文、图表或审稿意见，并说明要什么交付。例如，「只标出摘要中超出数据支持的句子，逐句说明理由」或「把这段中文图注改成英文，保留样本量、误差线定义和图号」。日常改稿直接在对话中完成。检查 Markdown 格式或审计写作提示词时，可按下文运行可选的 Python 脚本。
+
+当前科研写作流程见 [SKILL.md](SKILL.md)。以下保留 v1.1.3 的脚本功能与历史测试说明。已知误判和日志限制见[脚本使用说明](references/verification-and-roadmap.md)。
 
 ## 一、核心能力与实现边界
 
@@ -28,6 +50,8 @@
    - `redact_sensitive_text` 先拦截显式密钥、多行私钥、连接串密码、URL 参数密钥与带上下文标签凭据（含带标签 Hex/UUID 与 JSON 引号键名），再保护良性技术标识符（PascalCase/snake_case 术语、`DOI`、`SHA-256 / Git SHA`、`ORCID`、`UUID`、`arXiv`、`NCT / GSE / NM_ / ENSG`、`CVE` 与配置路径），并对含空格用户名/卷名、无尾斜杠主目录及 `~/.ssh` 等敏感路径默认脱敏。
 
 ## 三、命令示例与测试说明
+
+以下命令从 `clear-voice` 文件夹的上一级运行。项目安装对应项目内的 `.agents/skills/`，个人安装对应 `~/.agents/skills/`。将 `draft.md` 或 `prompt.md` 换成稿件的实际路径。
 
 ```bash
 # 只读预检（最高返回 Preflight Passed）
